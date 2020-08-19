@@ -8,14 +8,20 @@ const outputPath = path.join(__dirname, './dist');
 // plugins
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-let CleanWebpackPlugin = require('clean-webpack-plugin');
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 
 module.exports = {
-    // Входные файлы
-    entry: './src/js/index.js',
+    context: sourcePath,
+    entry: {
+        app: [
+            './js/index.js',
+            './styles/style.scss'
+        ]
+    },
+    mode: 'development',
     output: {
         path: outputPath,
-        filename: './js/bundle.js'
+        filename: '[name].[contenthash].bundle.js'
     },
     devtool: "source-map",
     module: {
@@ -23,16 +29,16 @@ module.exports = {
             /*
             * JS
             * */
-            {
-                test: /\.js$/,
-                include: path.resolve(__dirname, 'src/js'),
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: 'env'
-                    }
-                }
-            },
+            // {
+            //     test: /\.js$/,
+            //     include: path.resolve(__dirname, 'src/js'),
+            //     use: {
+            //         loader: 'babel-loader',
+            //         options: {
+            //             presets: 'env'
+            //         }
+            //     }
+            // },
             /**
              * SASS
              */
@@ -48,8 +54,14 @@ module.exports = {
                 ],
             },
             // static assets
-            {test: /\.html$/, use: 'html-loader'},
-            {test: /\.(a?png|svg)$/, use: 'url-loader?limit=10000'},
+            {
+                test: /\.html$/,
+                use: 'html-loader'
+            },
+            {
+                test: /\.(a?png|svg)$/,
+                use: 'url-loader?limit=10000'
+            },
             {
                 test: /\.(jpe?g|gif|bmp|mp3|mp4|ogg|wav|eot|ttf|woff|woff2)$/,
                 use: 'file-loader'
@@ -61,12 +73,12 @@ module.exports = {
         ]
     },
     plugins: [
-        // new CleanWebpackPlugin(),
-        new MiniCssExtractPlugin({
-            filename: '[hash].css'
-        }),
+        new CleanWebpackPlugin(),
+        // new MiniCssExtractPlugin({
+        //     filename: '[hash].css'
+        // }),
         new HtmlWebpackPlugin({
-            template: './src/index.html',
+            template: './index.html',
             minify: {
                 minifyJS: true,
                 minifyCSS: true,
