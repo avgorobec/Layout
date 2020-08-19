@@ -1,9 +1,10 @@
 const path = require('path');
-const sourcePath = path.join(__dirname, './src');
-const outputPath = path.join(__dirname, './dist');
-// console.log(sourcePath)
+
 
 // Variables
+const isDev = process.env.NODE_ENV === 'development'
+const sourcePath = path.join(__dirname, './src');
+const outputPath = path.join(__dirname, './dist');
 
 // plugins
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -21,26 +22,36 @@ module.exports = {
     mode: 'development',
     output: {
         path: outputPath,
-        filename: '[name].[contenthash].bundle.js'
+        filename: '[name].[contenthash].bundle.css'
     },
     devtool: "source-map",
+    resolve: {
+        extensions: ['.js', '.json', '.png'],
+        alias: {
+            App: path.resolve(__dirname, 'src'),
+            Assets: path.resolve(__dirname, 'src/assets')
+        }
+    },
     module: {
         rules: [
             /*
-            * JS
+            *  CSS 
             * */
-            // {
-            //     test: /\.js$/,
-            //     include: path.resolve(__dirname, 'src/js'),
-            //     use: {
-            //         loader: 'babel-loader',
-            //         options: {
-            //             presets: 'env'
-            //         }
-            //     }
-            // },
+            {
+                test: /\.css$/,
+                use: [
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            hmr: isDev,
+                            reloadAll: true
+                        },
+                    },
+                    'css-loader'
+                ]
+            },
             /**
-             * SASS
+             * SASS / SCSS
              */
             {
                 test: /\.s[ac]ss$/i,
@@ -65,18 +76,23 @@ module.exports = {
             {
                 test: /\.(jpe?g|gif|bmp|mp3|mp4|ogg|wav|eot|ttf|woff|woff2)$/,
                 use: 'file-loader'
-            },
-            {
-                test: /\.(ttf|woff|woff2|eot)$/,
-                use: 'file-loader'
             }
         ]
     },
+    optimization: {
+      splitChunks: {
+          chunks: 'all',
+      }  
+    },
+    devServer: {
+        port: 4200,
+        hot: isDev
+    },
     plugins: [
         new CleanWebpackPlugin(),
-        // new MiniCssExtractPlugin({
-        //     filename: '[hash].css'
-        // }),
+        new MiniCssExtractPlugin({
+            filename: '[name].[contenthash].bundle.js'
+        }),
         new HtmlWebpackPlugin({
             template: './index.html',
             minify: {
